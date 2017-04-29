@@ -3,7 +3,10 @@ import { addNeuron } from '../actions'
 import Action from '../components/Action'
 
 const mapStateToProps = (state) => {
-  return {}
+  console.log('highestLayer: ' + state.highestLayer);
+  return {
+    highestLayer: state.highestLayer,
+  }
 }
 
 const mapDispatchToProps = (dispatch) => {

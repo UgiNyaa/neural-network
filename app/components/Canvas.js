@@ -8,8 +8,9 @@ export default class Canvas extends React.Component {
       PropTypes.shape({
         id: PropTypes.number.isRequired,
         layer: PropTypes.number.isRequired,
-      }).isRequired
-    ).isRequired
+      }).isRequired,
+    ).isRequired,
+    highestLayer: PropTypes.number.isRequired,
   }
 
   constructor () {
@@ -38,7 +39,33 @@ export default class Canvas extends React.Component {
   }
 
   updateCanvas () {
+    const ctx = this.refs.canvas.getContext('2d')
+    ctx.fillStyle = '#eceff1'
+    ctx.fillRect(0, 0, this.state.width, this.state.height)
 
+    for (var l = 0; true; l++) {
+      var neurons = []
+      for (var i = 0; i < this.props.neurons.length; i++) {
+        if (this.props.neurons[i].layer === l) {
+          neurons.push(this.props.neurons[i])
+        }
+      }
+      if (neurons.length === 0) {
+        break;
+      }
+
+      for (var i = 0; i < neurons.length; i++) {
+        var x = (i-((neurons.length-1)/2))*100
+        var y = -(l-(this.props.highestLayer/2))*100
+
+        ctx.beginPath()
+        ctx.arc(this.state.origin.x + x, this.state.origin.y + y, 20, 0, 2*Math.PI, false)
+        ctx.closePath()
+        ctx.lineWidth = 5
+        ctx.fillStyle = 'green'
+        ctx.fill()
+      }
+    }
   }
 
   getStyles () {

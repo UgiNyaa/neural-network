@@ -3,7 +3,8 @@ import Canvas from '../components/Canvas'
 
 const mapStateToProps = (state) => {
   return {
-    neurons: state.neurons
+    neurons: state.neurons,
+    highestLayer: state.highestLayer,
   }
 }
 
