@@ -14,7 +14,7 @@ export default class Action extends React.Component {
     this.state = {
       open: false,
       layer: 0,
-      highestLayer: 0,
+      highestLayer: -1,
     }
   }
 
