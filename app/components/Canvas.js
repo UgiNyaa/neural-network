@@ -8,8 +8,15 @@ export default class Canvas extends React.Component {
       PropTypes.shape({
         id: PropTypes.number.isRequired,
         layer: PropTypes.number.isRequired,
-      }).isRequired,
+      }).isRequired
     ).isRequired,
+    connections: PropTypes.arrayOf(
+      PropTypes.shape({
+        from: PropTypes.number.isRequired,
+        to: PropTypes.number.isRequired,
+        weight: PropTypes.number.isRequired,
+      })
+    ),
     highestLayer: PropTypes.number.isRequired,
   }
 
@@ -21,11 +28,9 @@ export default class Canvas extends React.Component {
       origin: { x: window.innerWidth / 2, y: window.innerHeight / 2},
       move: false,
       oldMouse: { x: 0, y: 0 },
-      stride: { x: 50, y: 50 }
+      radius: 30,
+      stride: 150,
     }
-
-    console.log(Canvas.propTypes);
-    console.log(JSON.stringify(Canvas.propTypes));
 
     window.onresize = this.onResize.bind(this)
   }
@@ -43,6 +48,46 @@ export default class Canvas extends React.Component {
     ctx.fillStyle = '#eceff1'
     ctx.fillRect(0, 0, this.state.width, this.state.height)
 
+    // draw connections
+    for (var i = 0; i < this.props.connections.length; i++) {
+      var fromLayer = this.props.neurons.find((n) => this.props.connections[i].from === n.id).layer
+      var toLayer = this.props.neurons.find((n) => this.props.connections[i].to == n.id).layer
+
+      var fromLayerNeurons = []
+      var toLayerNeurons = []
+      for (var j = 0; j < this.props.neurons.length; j++) {
+        if (this.props.neurons[j].layer === fromLayer) {
+          fromLayerNeurons.push(this.props.neurons[j])
+        }
+        if (this.props.neurons[j].layer === toLayer) {
+          toLayerNeurons.push(this.props.neurons[j])
+        }
+      }
+
+      var fromi = 0;
+      var toi = 0;
+      for (fromi = 0; fromi < fromLayerNeurons.length; fromi++) {
+        if (fromLayerNeurons[fromi].id === this.props.connections[i].from)
+          break
+      }
+      for (toi = 0; toi < toLayerNeurons.length; toi++) {
+        if (toLayerNeurons[toi].id === this.props.connections[i].to)
+          break;
+      }
+
+      var fromx = (fromi-((fromLayerNeurons.length-1)/2))*this.state.stride
+      var fromy = -(fromLayer-(this.props.highestLayer/2))*this.state.stride
+      var tox = (toi-((toLayerNeurons.length-1)/2))*this.state.stride
+      var toy = -(toLayer-(this.props.highestLayer/2))*this.state.stride
+
+      ctx.beginPath()
+      ctx.moveTo(this.state.origin.x + fromx, this.state.origin.y + fromy)
+      ctx.lineTo(this.state.origin.x + tox, this.state.origin.y + toy)
+      ctx.lineWidth = 2
+      ctx.stroke()
+    }
+
+    // draw neurons
     for (var l = 0; true; l++) {
       var neurons = []
       for (var i = 0; i < this.props.neurons.length; i++) {
@@ -55,14 +100,14 @@ export default class Canvas extends React.Component {
       }
 
       for (var i = 0; i < neurons.length; i++) {
-        var x = (i-((neurons.length-1)/2))*100
-        var y = -(l-(this.props.highestLayer/2))*100
+        var x = (i-((neurons.length-1)/2))*this.state.stride
+        var y = -(l-(this.props.highestLayer/2))*this.state.stride
 
         ctx.beginPath()
-        ctx.arc(this.state.origin.x + x, this.state.origin.y + y, 20, 0, 2*Math.PI, false)
+        ctx.arc(this.state.origin.x + x, this.state.origin.y + y, this.state.radius, 0, 2*Math.PI, false)
         ctx.closePath()
         ctx.lineWidth = 5
-        ctx.fillStyle = 'green'
+        ctx.fillStyle = '#2196f3'
         ctx.fill()
       }
     }
@@ -119,8 +164,6 @@ export default class Canvas extends React.Component {
   }
 
   render () {
-    console.log('render');
-    console.log(this.props);
     var styles = this.getStyles()
 
     return (

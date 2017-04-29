@@ -11,6 +11,19 @@ import SelectField from 'material-ui/SelectField'
 export default class Action extends React.Component {
   static propTypes = {
     highestLayer: PropTypes.number.isRequired,
+    connections: PropTypes.arrayOf(
+      PropTypes.shape({
+        from: PropTypes.number.isRequired,
+        to: PropTypes.number.isRequired,
+        weight: PropTypes.number.isRequired,
+      })
+    ),
+    neurons: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        layer: PropTypes.number.isRequired,
+      }).isRequired
+    ).isRequired,
   }
 
   constructor () {
@@ -37,7 +50,23 @@ export default class Action extends React.Component {
   handleChange = (event, index, value) => this.setState({ layer: value })
   handleSubmit = () => {
     this.setState({ open: false })
-    this.props.onAddNeuron(this.state.layer)
+    var id = this.props.onAddNeuron(this.state.layer)
+
+    if (this.state.layer !== this.props.highestLayer) {
+      for (var i = 0; i < this.props.neurons.length; i++) {
+        if (this.props.neurons[i].layer === this.state.layer + 1) {
+          this.props.onAddConnection(id, this.props.neurons[i].id, 1)
+        }
+      }
+    }
+
+    if (this.state.layer !== 0) {
+      for (var i = 0; i < this.props.neurons.length; i++) {
+        if (this.props.neurons[i].layer === this.state.layer - 1) {
+          this.props.onAddConnection(this.props.neurons[i].id, id, 1)
+        }
+      }
+    }
   }
 
   render () {

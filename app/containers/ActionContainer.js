@@ -1,19 +1,24 @@
 import { connect } from 'react-redux'
-import { addNeuron } from '../actions'
+import { addNeuron, addConnection } from '../actions'
 import Action from '../components/Action'
 
 const mapStateToProps = (state) => {
-  console.log('highestLayer: ' + state.highestLayer);
   return {
     highestLayer: state.highestLayer,
+    neurons: state.neurons,
+    connections: state.connections,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     onAddNeuron: (layer) => {
-      console.log('dispatching on add neuron');
-      dispatch(addNeuron(layer))
+      var n = addNeuron(layer)
+      dispatch(n)
+      return n.payload.id
+    },
+    onAddConnection: (from, to, weight) => {
+      dispatch(addConnection(from, to, weight))
     }
   }
 }
