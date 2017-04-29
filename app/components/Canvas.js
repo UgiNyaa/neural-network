@@ -23,6 +23,9 @@ export default class Canvas extends React.Component {
       stride: { x: 50, y: 50 }
     }
 
+    console.log(Canvas.propTypes);
+    console.log(JSON.stringify(Canvas.propTypes));
+
     window.onresize = this.onResize.bind(this)
   }
 

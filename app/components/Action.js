@@ -1,7 +1,5 @@
 import React from 'react'
 
-import { minLayer } from '../actions'
-
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import Dialog from 'material-ui/Dialog'
 import FloatingActionButton from 'material-ui/FloatingActionButton'
@@ -15,6 +13,8 @@ export default class Action extends React.Component {
 
     this.state = {
       open: false,
+      layer: 0,
+      highestLayer: 0,
     }
   }
 
@@ -30,9 +30,13 @@ export default class Action extends React.Component {
 
   handleOpen = () => this.setState({ open: true })
   handleClose = () => this.setState({ open: false })
+  handleChange = (event, index, value) => this.setState({ layer: value })
   handleSubmit = () => {
     this.setState({ open: false })
-    this.props.onAddNeuron(this.layer)
+    this.props.onAddNeuron(this.state.layer)
+    if (this.state.layer > this.state.highestLayer) {
+      this.setState({ highestLayer: this.state.layer })
+    }
   }
 
   render () {
@@ -49,10 +53,11 @@ export default class Action extends React.Component {
         onTouchTap={this.handleSubmit.bind(this)}
       />,
     ];
-    var style = this.getStyles()
+    const validLayer = this.state.layer <= this.state.highestLayer + 1;
+    const style = this.getStyles()
 
     var menuItems = []
-    for (var i = 0; i <= minLayer; i++) {
+    for (var i = 0; i <= this.state.highestLayer + 1; i++) {
       menuItems.push(<MenuItem key={i} value={i} primaryText={String(i)} />)
     }
 
@@ -73,9 +78,10 @@ export default class Action extends React.Component {
           onRequestClose={this.handleClose.bind(this)}
         >
         <SelectField
-          ref={(field) => this.layer = field}
           floatingLabelText={'Layer'}
-          value={minLayer}
+          value={this.state.layer}
+          onChange={this.handleChange.bind(this)}
+          errorText={!validLayer && 'Layer should be less then ' + this.state.highestLayer + 1}
         >
           {menuItems}
         </SelectField>
